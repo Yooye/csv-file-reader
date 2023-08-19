@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>csvToBaiCiZhan</title>
+    <style>
+      #bczCont {
+        word-break: break-all;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        /* width: 100%; */
+        padding: 20px;
+        line-height: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <input type="file" id="csvFileInput" />
+    <button id="jsonBtn">提取JSON数据</button>
+    <button id="bczBtn">提取BaiCiZhan单词本格式数据</button>
+    <pre id="output"></pre>
+    <pre id="bczCont"></pre>
+    <script>
+      const csvFileInput = document.getElementById("csvFileInput");
+      const outputElement = document.getElementById("output");
+      const outputBcz = document.getElementById("bczCont");
+
+      csvFileInput.addEventListener("change", handleFileUpload);
+      let json = [];
+      function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+
+          reader.onload = function (event) {
+            const csvContent = event.target.result;
+            const lines = csvContent.trim().split("\n");
+            const headers = lines[0].split(",");
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+              const values = lines[i].split(",");
+              const entry = {};
+
+              for (let j = 0; j < headers.length; j++) {
+                entry[headers[j]] = values[j];
+              }
+
+              data.push(entry);
+            }
+
+            json = data;
+            outputElement.textContent = JSON.stringify(json, null, 2);
+            let wordsArr = data.map((item) => item.word);
+            bczCont.textContent = wordsArr.join(",");
+          };
+
+          reader.readAsText(file);
+        }
+      }
+
+      // 显示json数据
+      document.querySelector("#jsonBtn").onclick = function () {
+        outputElement.style.display = "block";
+        bczCont.style.display = "none";
+      };
+      //显示百词斩数据格式（单词间逗号隔开）
+      document.querySelector("#bczBtn").onclick = function () {
+        outputElement.style.display = "none";
+        bczCont.style.display = "block";
+      };
+    </script>
+  </body>
+</html>
